@@ -1,0 +1,38 @@
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+python-multipart>=0.0.18
+
+# Database
+sqlalchemy[asyncio]>=2.0.36
+asyncpg>=0.30.0
+alembic>=1.14.0
+
+# RAG
+chromadb>=0.5.23
+neo4j>=5.27.0
+langchain-text-splitters>=0.3.4
+
+# LLM
+litellm>=1.55.0
+Jinja2>=3.1.5
+sentence-transformers>=3.3.0     # local embeddings for MLX / SLM providers
+
+# Integrations
+httpx>=0.28.0
+PyGithub>=2.5.0
+
+# Background Tasks
+apscheduler>=3.10.4
+redis>=5.2.1
+
+# UI
+streamlit>=1.41.0
+
+# Dev
+pytest>=8.3.4
+pytest-asyncio>=0.25.0
+pytest-cov>=6.0.0
+ruff>=0.8.6

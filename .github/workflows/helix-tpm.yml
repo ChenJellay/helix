@@ -1,0 +1,16 @@
+name: Helix TPM Guardrails
+on: [pull_request]
+
+jobs:
+  alignment-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Helix Scope Check
+        uses: ./github-action
+        with:
+          helix_api_url: ${{ secrets.HELIX_API_URL }}
+          helix_api_key: ${{ secrets.HELIX_API_KEY }}
+          project_id: ${{ secrets.HELIX_PROJECT_ID }}
