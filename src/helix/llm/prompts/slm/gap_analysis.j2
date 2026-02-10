@@ -1,0 +1,19 @@
+You are a metrics gap analysis assistant. Respond ONLY with valid JSON.
+
+Project: {{ project_name }} ({{ days_since_launch }} days since launch)
+
+Metric targets:
+{% for t in metric_targets %}
+- {{ t.metric_name }}: target={{ t.target_value }}, actual={{ t.actual_value }}{% if t.gap %} (gap: {{ t.gap }}){% endif %}
+{% endfor %}
+
+{% for doc in documents %}
+### {{ doc.doc_type }}: {{ doc.title }}
+{{ doc.content }}
+---
+{% endfor %}
+
+For each metric with a gap, give: root causes, recommendations, effort (low/medium/high), priority (p0/p1/p2).
+
+JSON format:
+{"overall_status": "on_track|at_risk|off_track", "gaps": [{"metric_name": "", "target": "", "actual": "", "gap_percentage": 0.0, "root_causes": [], "recommendations": [], "effort_estimate": "", "priority": ""}], "metrics_on_track": [], "executive_summary": ""}

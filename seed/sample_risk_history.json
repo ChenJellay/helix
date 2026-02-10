@@ -1,0 +1,122 @@
+[
+  {
+    "event_type": "Data Privacy Review",
+    "team": "Privacy",
+    "duration_days": 21,
+    "outcome": "approved_with_conditions",
+    "description": "Feature collected user location data. Required full DPR which took 3 weeks. Had to add data retention policy and user consent dialog.",
+    "tags": ["privacy", "location", "gdpr", "dpr"]
+  },
+  {
+    "event_type": "Data Privacy Review",
+    "team": "Privacy",
+    "duration_days": 14,
+    "outcome": "approved",
+    "description": "Feature processed user search history. Standard privacy review took 2 weeks. No major findings.",
+    "tags": ["privacy", "search", "user_data"]
+  },
+  {
+    "event_type": "Legal Review",
+    "team": "Legal",
+    "duration_days": 10,
+    "outcome": "approved_with_conditions",
+    "description": "Terms of Service update required for new data collection. Legal required 2 rounds of revision.",
+    "tags": ["legal", "tos", "data_collection"]
+  },
+  {
+    "event_type": "Security Review",
+    "team": "Security",
+    "duration_days": 7,
+    "outcome": "approved",
+    "description": "Standard security review for API endpoint changes. No vulnerabilities found.",
+    "tags": ["security", "api"]
+  },
+  {
+    "event_type": "SRE Capacity Review",
+    "team": "SRE",
+    "duration_days": 5,
+    "outcome": "approved_with_conditions",
+    "description": "Required additional capacity planning for 3x traffic increase. SRE mandated rate limiting.",
+    "tags": ["sre", "capacity", "scaling"]
+  },
+  {
+    "event_type": "API Dependency Block",
+    "team": "Payments",
+    "duration_days": 30,
+    "outcome": "delayed",
+    "description": "Payments team had a Q4 code freeze. Feature launch delayed by 4 weeks waiting for API changes.",
+    "tags": ["payments", "dependency", "code_freeze"]
+  },
+  {
+    "event_type": "Launch Gate - Red",
+    "team": "Privacy",
+    "duration_days": 28,
+    "outcome": "blocked_then_resolved",
+    "description": "Launch was blocked at the privacy gate. The feature's data retention policy was missing. Required emergency review.",
+    "tags": ["launch_gate", "privacy", "blocked"]
+  },
+  {
+    "event_type": "Launch Gate - Red",
+    "team": "Legal",
+    "duration_days": 14,
+    "outcome": "blocked_then_resolved",
+    "description": "Legal flagged missing accessibility compliance for EU market. Required UI changes and re-review.",
+    "tags": ["launch_gate", "legal", "accessibility", "eu"]
+  },
+  {
+    "event_type": "Incident - Post Launch",
+    "team": "SRE",
+    "duration_days": 3,
+    "outcome": "mitigated",
+    "description": "P1 incident 2 days post-launch. Location service caused 5x increase in API calls, exceeding rate limits.",
+    "tags": ["incident", "sre", "location", "rate_limiting"]
+  },
+  {
+    "event_type": "Scope Creep",
+    "team": "Engineering",
+    "duration_days": 15,
+    "outcome": "timeline_extended",
+    "description": "Engineers added real-time location tracking (not in original design). Added 2 weeks and triggered additional privacy review.",
+    "tags": ["scope_creep", "engineering", "location"]
+  },
+  {
+    "event_type": "Data Privacy Review",
+    "team": "Privacy",
+    "duration_days": 35,
+    "outcome": "rejected_then_approved",
+    "description": "Initial DPR rejected due to inadequate anonymization of user movement patterns. Required architecture redesign.",
+    "tags": ["privacy", "location", "anonymization", "rejected"]
+  },
+  {
+    "event_type": "Cross-Team Dependency",
+    "team": "Search",
+    "duration_days": 20,
+    "outcome": "delayed",
+    "description": "Search team's API v3 was delayed by 3 weeks. Had to use v2 with workarounds, adding technical debt.",
+    "tags": ["dependency", "search", "api", "technical_debt"]
+  },
+  {
+    "event_type": "Launch Gate - Green",
+    "team": "Security",
+    "duration_days": 3,
+    "outcome": "approved",
+    "description": "Security review passed on first attempt. All API endpoints properly authenticated and encrypted.",
+    "tags": ["launch_gate", "security", "approved"]
+  },
+  {
+    "event_type": "Performance Regression",
+    "team": "Engineering",
+    "duration_days": 7,
+    "outcome": "fixed",
+    "description": "Location feature added 200ms to page load. Required optimization sprint to meet latency targets.",
+    "tags": ["performance", "latency", "optimization"]
+  },
+  {
+    "event_type": "Legal Review",
+    "team": "Legal",
+    "duration_days": 25,
+    "outcome": "approved_with_conditions",
+    "description": "GDPR compliance review for EU users' location data. Required DPA amendments and cookie consent updates.",
+    "tags": ["legal", "gdpr", "eu", "location", "cookies"]
+  }
+]

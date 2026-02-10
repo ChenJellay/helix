@@ -1,0 +1,30 @@
+name: "Helix TPM Guardrails"
+description: "AI-powered scope-creep and design compliance check for pull requests"
+author: "Helix Team"
+
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  helix_api_url:
+    description: "URL of the Helix API server"
+    required: true
+    default: "http://localhost:8000"
+  helix_api_key:
+    description: "API key for authentication with Helix"
+    required: true
+  project_id:
+    description: "Helix project ID to check against"
+    required: true
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    HELIX_API_URL: ${{ inputs.helix_api_url }}
+    HELIX_API_KEY: ${{ inputs.helix_api_key }}
+    HELIX_PROJECT_ID: ${{ inputs.project_id }}
+    GITHUB_TOKEN: ${{ github.token }}
+    PR_NUMBER: ${{ github.event.pull_request.number }}
+    REPO_NAME: ${{ github.repository }}
