@@ -14,12 +14,14 @@ from pydantic import BaseModel, Field
 class ProjectCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: str = ""
-    github_repo: str | None = None
+    repo_path: str | None = None         # relative to HELIX_WORKSPACE (local mode)
+    github_repo: str | None = None       # owner/repo (cloud mode)
 
 
 class ProjectUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
+    repo_path: str | None = None
     github_repo: str | None = None
     status: str | None = None
 
@@ -28,6 +30,7 @@ class ProjectResponse(BaseModel):
     id: uuid.UUID
     name: str
     description: str
+    repo_path: str | None
     github_repo: str | None
     status: str
     created_at: datetime
@@ -136,8 +139,10 @@ class ViolationItem(BaseModel):
 class ScopeCheckResponse(BaseModel):
     id: uuid.UUID
     project_id: uuid.UUID
-    pr_number: int
-    repo_name: str
+    base_branch: str | None = None
+    head_branch: str | None = None
+    pr_number: int | None = None
+    repo_name: str | None = None
     alignment_score: float
     violations: list[dict]
     summary: str
@@ -201,7 +206,32 @@ class MetricTargetResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Webhooks ──────────────────────────────────────────────────────────────────
+# ── Local Scope Check ─────────────────────────────────────────────────────────
+
+
+class LocalCheckRequest(BaseModel):
+    """Request body for ``POST /api/check-local``."""
+
+    repo_path: str = Field(
+        ...,
+        description=(
+            "Path to the repository — absolute, ~/prefixed, or relative to "
+            "HELIX_WORKSPACE."
+        ),
+    )
+    base_branch: str = Field(
+        "main",
+        description="Base branch to diff against.",
+    )
+    head_branch: str | None = Field(
+        None,
+        description=(
+            "Head branch to check.  Defaults to the currently checked-out branch."
+        ),
+    )
+
+
+# ── Webhooks (cloud mode) ────────────────────────────────────────────────────
 
 
 class GitHubWebhookPayload(BaseModel):

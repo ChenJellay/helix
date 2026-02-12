@@ -90,49 +90,105 @@ async def run_gap_analysis_for_all() -> None:
 
 
 async def run_repo_reindex() -> None:
-    """Re-index repository maps for all projects with linked GitHub repos."""
+    """Re-index repository maps for all projects with linked repos.
+
+    In local mode, traverses the filesystem via ``LocalGitClient``.
+    In cloud mode, falls back to the GitHub REST API.
+    """
+    from helix.config import settings
     from helix.db.session import async_session_factory
     from helix.models.db import Project
-    from helix.integrations.github import GitHubClient
     from helix.llm import get_llm
     from helix.rag.vector import add_repo_map
 
     logger.info("Starting scheduled repo re-indexing")
 
     async with async_session_factory() as session:
-        result = await session.execute(
-            select(Project).where(Project.github_repo.isnot(None))
-        )
-        projects = result.scalars().all()
+        if settings.helix_mode == "local":
+            await _reindex_local(session)
+        else:
+            await _reindex_cloud(session)
 
-        github = GitHubClient()
-        llm = get_llm()
 
-        for project in projects:
-            repo = project.github_repo
-            if not repo:
-                continue
+async def _reindex_local(session) -> None:
+    """Traverse local repos and re-index file trees."""
+    from helix.models.db import Project
+    from helix.integrations.local_git import LocalGitClient
+    from helix.llm import get_llm
+    from helix.rag.vector import add_repo_map
 
-            try:
-                # Fetch file tree
-                tree = await github.get_repo_tree(repo)
-                file_paths = [
-                    f["path"] for f in tree
-                    if f.get("type") == "blob" and not f["path"].startswith(".")
-                ]
-                file_tree = "\n".join(file_paths[:200])  # Limit for context window
+    result = await session.execute(
+        select(Project).where(Project.repo_path.isnot(None))
+    )
+    projects = result.scalars().all()
+    llm = get_llm()
 
-                # Generate signatures (simplified - just file listing)
-                signatures = "\n".join(
-                    f"- {p}" for p in file_paths
-                    if p.endswith((".py", ".ts", ".js", ".go", ".java", ".rs"))
-                )[:3000]
+    for project in projects:
+        repo_path = project.repo_path
+        if not repo_path:
+            continue
 
-                # Embed and store
-                combined = f"Repo: {repo}\n{file_tree}\n{signatures}"
-                embeddings = await llm.embed([combined])
-                await add_repo_map(repo, file_tree, signatures, embeddings[0])
+        try:
+            git = LocalGitClient(repo_path)
+            all_files = await git.ls_tree()
 
-                logger.info("Re-indexed repo map for %s", repo)
-            except Exception:
-                logger.exception("Failed to re-index repo %s", repo)
+            # Filter out hidden files
+            file_paths = [p for p in all_files if not p.startswith(".")]
+            file_tree = "\n".join(file_paths[:200])
+
+            # Generate signatures (code file listing)
+            code_exts = (".py", ".ts", ".js", ".go", ".java", ".rs", ".tsx", ".jsx")
+            signatures = "\n".join(
+                f"- {p}" for p in file_paths if p.endswith(code_exts)
+            )[:3000]
+
+            # Embed and store
+            combined = f"Repo: {repo_path}\n{file_tree}\n{signatures}"
+            embeddings = await llm.embed([combined])
+            await add_repo_map(repo_path, file_tree, signatures, embeddings[0])
+
+            logger.info("Re-indexed local repo map for %s", repo_path)
+        except Exception:
+            logger.exception("Failed to re-index local repo %s", repo_path)
+
+
+async def _reindex_cloud(session) -> None:
+    """Fetch file trees from GitHub and re-index (cloud mode)."""
+    from helix.models.db import Project
+    from helix.integrations.github import GitHubClient
+    from helix.llm import get_llm
+    from helix.rag.vector import add_repo_map
+
+    result = await session.execute(
+        select(Project).where(Project.github_repo.isnot(None))
+    )
+    projects = result.scalars().all()
+
+    github = GitHubClient()
+    llm = get_llm()
+
+    for project in projects:
+        repo = project.github_repo
+        if not repo:
+            continue
+
+        try:
+            tree = await github.get_repo_tree(repo)
+            file_paths = [
+                f["path"] for f in tree
+                if f.get("type") == "blob" and not f["path"].startswith(".")
+            ]
+            file_tree = "\n".join(file_paths[:200])
+
+            code_exts = (".py", ".ts", ".js", ".go", ".java", ".rs", ".tsx", ".jsx")
+            signatures = "\n".join(
+                f"- {p}" for p in file_paths if p.endswith(code_exts)
+            )[:3000]
+
+            combined = f"Repo: {repo}\n{file_tree}\n{signatures}"
+            embeddings = await llm.embed([combined])
+            await add_repo_map(repo, file_tree, signatures, embeddings[0])
+
+            logger.info("Re-indexed repo map for %s", repo)
+        except Exception:
+            logger.exception("Failed to re-index repo %s", repo)

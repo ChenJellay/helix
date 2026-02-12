@@ -22,7 +22,10 @@ sentence-transformers>=3.3.0     # local embeddings for MLX / SLM providers
 
 # Integrations
 httpx>=0.28.0
-PyGithub>=2.5.0
+PyYAML>=6.0.2                            # workflow parser for CI/CD YAML files
+
+# CLI
+click>=8.1.7
 
 # Background Tasks
 apscheduler>=3.10.4

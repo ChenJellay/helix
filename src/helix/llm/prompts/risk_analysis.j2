@@ -24,13 +24,17 @@ No directly matching historical events found. Use general risk assessment princi
 {% endif %}
 
 ## Instructions
-Analyze the PRD and provide a structured risk assessment. For each risk:
-1. Identify the specific text or requirement that triggers the risk
+Analyze the PRD and provide a structured risk assessment. Every risk you identify MUST be grounded in the specific content of this PRD — do not produce generic or boilerplate risks.
+
+For each risk:
+1. Quote the specific text or requirement from the PRD that triggers the risk (set as "trigger_text")
 2. Estimate probability (0.0-1.0) based on historical patterns
 3. Assess impact (low/medium/high/critical)
-4. Identify the team most likely to block (e.g., Legal, SRE, Privacy, Security)
-5. Suggest a mitigation strategy
+4. Identify the team most likely to block — this should relate to the domain described in the PRD, not generic team names
+5. Suggest a concrete, actionable mitigation strategy specific to this project
 6. Reference any historical evidence
+
+IMPORTANT: The "summary" field must describe the risk profile of THIS specific project by name and purpose. Do not write a generic summary.
 
 Respond in JSON format:
 ```json

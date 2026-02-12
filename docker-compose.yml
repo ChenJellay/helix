@@ -13,6 +13,9 @@ services:
       - ./src:/app/src
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
+      - ${HELIX_WORKSPACE:-~/projects}:/workspace   # local repos
+    environment:
+      HELIX_WORKSPACE: /workspace
     depends_on:
       postgres:
         condition: service_healthy

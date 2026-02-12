@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     helix_env: str = "development"
     helix_debug: bool = True
     helix_api_key: str = "changeme-generate-a-real-key"
+    helix_mode: str = "local"  # "local" (default) or "cloud"
+
+    # Local workspace — root directory for all watched repositories.
+    # All repo paths in the DB are stored relative to this directory.
+    helix_workspace: str = "~/projects"
 
     # PostgreSQL
     postgres_host: str = "localhost"
@@ -105,7 +110,7 @@ class Settings(BaseSettings):
     # SLM tuning — override via env or leave blank for auto-detection
     slm_profile: str = ""  # e.g. "qwen-7b", "llama-3-8b", or "" for auto
 
-    # GitHub
+    # GitHub (cloud mode only)
     github_token: str = ""
     github_webhook_secret: str = "changeme-webhook-secret"
 

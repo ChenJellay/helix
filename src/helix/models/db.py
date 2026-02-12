@@ -32,7 +32,8 @@ class Project(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, default="")
-    github_repo = Column(String(500), nullable=True)
+    repo_path = Column(String(500), nullable=True)       # relative to HELIX_WORKSPACE
+    github_repo = Column(String(500), nullable=True)      # cloud mode (owner/repo)
     status = Column(
         Enum("active", "launched", "archived", name="project_status"),
         default="active",
@@ -158,14 +159,21 @@ class HistoricalEvent(Base):
 
 
 class ScopeCheckResult(Base):
-    """Result of a PR scope-creep check."""
+    """Result of a scope-creep check (local branch or cloud PR)."""
 
     __tablename__ = "scope_check_results"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
-    pr_number = Column(Integer, nullable=False)
-    repo_name = Column(String(500), nullable=False)
+
+    # Local mode fields
+    base_branch = Column(String(255), nullable=True)
+    head_branch = Column(String(255), nullable=True)
+
+    # Cloud mode fields (kept for future use)
+    pr_number = Column(Integer, nullable=True)
+    repo_name = Column(String(500), nullable=True)
+
     alignment_score = Column(Float, default=1.0)
     violations = Column(JSONB, default=list)
     summary = Column(Text, default="")

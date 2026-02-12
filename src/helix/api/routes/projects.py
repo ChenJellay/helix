@@ -28,9 +28,20 @@ async def create_project(
     _: str = Depends(verify_api_key),
 ):
     """Create a new project."""
+    # Normalise repo_path to workspace-relative if an absolute path was given
+    normalised_repo_path = data.repo_path
+    if normalised_repo_path:
+        from helix.integrations.path_resolver import repo_path_resolver
+        try:
+            normalised_repo_path = repo_path_resolver.to_relative(normalised_repo_path)
+        except ValueError:
+            # Already relative or validation will be deferred — store as-is
+            pass
+
     project = Project(
         name=data.name,
         description=data.description,
+        repo_path=normalised_repo_path,
         github_repo=data.github_repo,
     )
     session.add(project)

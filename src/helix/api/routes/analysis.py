@@ -11,9 +11,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from helix.agents.gap_analyzer import GapAnalyzerAgent
 from helix.agents.risk_analyzer import RiskAnalyzerAgent
 from helix.api.deps import get_db, verify_api_key
-from helix.models.db import Document, GapAnalysis, Project, RiskAssessment, ScopeCheckResult
+from helix.models.db import (
+    Document,
+    GapAnalysis,
+    MetricTarget,
+    Project,
+    RiskAssessment,
+    ScopeCheckResult,
+)
 from helix.models.schemas import (
     GapAnalysisResponse,
+    MetricTargetCreate,
+    MetricTargetResponse,
     RiskAssessmentResponse,
     ScopeCheckResponse,
 )
@@ -159,3 +168,72 @@ async def trigger_gap_analysis(
         select(GapAnalysis).where(GapAnalysis.id == result["analysis_id"])
     )
     return analysis_result.scalar_one()
+
+
+# ── Metric Targets ────────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/projects/{project_id}/metric-targets",
+    response_model=MetricTargetResponse,
+    status_code=201,
+)
+async def create_metric_target(
+    project_id: uuid.UUID,
+    data: MetricTargetCreate,
+    session: AsyncSession = Depends(get_db),
+    _: str = Depends(verify_api_key),
+):
+    """Create a metric target for a project."""
+    # Verify project exists
+    proj_result = await session.execute(
+        select(Project).where(Project.id == project_id)
+    )
+    if not proj_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    target = MetricTarget(
+        project_id=project_id,
+        metric_name=data.metric_name,
+        target_value=data.target_value,
+        unit=data.unit,
+    )
+    session.add(target)
+    await session.flush()
+    await session.refresh(target)
+    return target
+
+
+@router.get(
+    "/projects/{project_id}/metric-targets",
+    response_model=list[MetricTargetResponse],
+)
+async def list_metric_targets(
+    project_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db),
+    _: str = Depends(verify_api_key),
+):
+    """List all metric targets for a project."""
+    result = await session.execute(
+        select(MetricTarget)
+        .where(MetricTarget.project_id == project_id)
+        .order_by(MetricTarget.created_at.desc())
+    )
+    return result.scalars().all()
+
+
+@router.delete("/metric-targets/{target_id}", status_code=204)
+async def delete_metric_target(
+    target_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db),
+    _: str = Depends(verify_api_key),
+):
+    """Delete a metric target."""
+    result = await session.execute(
+        select(MetricTarget).where(MetricTarget.id == target_id)
+    )
+    target = result.scalar_one_or_none()
+    if not target:
+        raise HTTPException(status_code=404, detail="Metric target not found")
+
+    await session.delete(target)

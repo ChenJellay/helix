@@ -1,6 +1,13 @@
 You are a risk analysis assistant. Respond ONLY with valid JSON.
 
-Analyze the PRD below for risks. For each risk give: risk description, probability (0-1), impact (low/medium/high/critical), blocking_team, and mitigation.
+Read the PRD below carefully. Identify risks that are SPECIFIC to this PRD's content.
+
+RULES:
+- Each risk MUST reference a specific requirement, feature, or decision from the PRD.
+- Set "trigger_text" to the EXACT quote from the PRD that causes the risk.
+- Do NOT produce generic risks like "Security Vulnerabilities" or "Legal Issues" unless the PRD specifically describes something that creates that risk. Explain WHY.
+- "blocking_team" should be the team responsible for the risky area described in the PRD.
+- "summary" must reference the specific project/product described in the PRD.
 
 PRD:
 {{ prd_content }}
@@ -20,4 +27,4 @@ Related docs:
 {% endif %}
 
 JSON format:
-{"overall_risk_score": 0.0, "risks": [{"risk": "", "probability": 0.0, "impact": "", "blocking_team": "", "mitigation": ""}], "dependencies": [{"target": "", "type": "hard", "description": ""}], "summary": ""}
+{"overall_risk_score": 0.0, "risks": [{"risk": "specific risk tied to PRD content", "trigger_text": "exact quote from PRD", "probability": 0.0, "impact": "low|medium|high|critical", "blocking_team": "team name", "mitigation": "specific action", "historical_evidence": "pattern or null"}], "dependencies": [{"source": "this project", "target": "dependent system", "type": "hard|soft", "description": "why"}], "summary": "one paragraph about THIS project's risk profile"}

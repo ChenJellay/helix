@@ -1,0 +1,120 @@
+Metadata-Version: 2.4
+Name: helix
+Version: 0.1.0
+Summary: Helix - AI-Native Technical Program Management Platform
+Author: Helix Team
+License: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: uvicorn[standard]>=0.32.0
+Requires-Dist: sqlalchemy[asyncio]>=2.0.36
+Requires-Dist: asyncpg>=0.30.0
+Requires-Dist: alembic>=1.14.0
+Requires-Dist: pydantic>=2.10.0
+Requires-Dist: pydantic-settings>=2.7.0
+Requires-Dist: chromadb>=0.5.23
+Requires-Dist: neo4j>=5.27.0
+Requires-Dist: litellm>=1.55.0
+Requires-Dist: langchain-text-splitters>=0.3.4
+Requires-Dist: httpx>=0.28.0
+Requires-Dist: PyGithub>=2.5.0
+Requires-Dist: apscheduler>=3.10.4
+Requires-Dist: streamlit>=1.41.0
+Requires-Dist: Jinja2>=3.1.5
+Requires-Dist: redis>=5.2.1
+Requires-Dist: python-multipart>=0.0.18
+Provides-Extra: dev
+Requires-Dist: pytest>=8.3.4; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.25.0; extra == "dev"
+Requires-Dist: pytest-cov>=6.0.0; extra == "dev"
+Requires-Dist: httpx>=0.28.0; extra == "dev"
+Requires-Dist: ruff>=0.8.6; extra == "dev"
+
+# Helix - AI-Native Technical Program Management Platform
+
+Helix is an AI-native TPgM platform built on the philosophy of **Living State**: the Code updates the State, and the State constrains the Code.
+
+## Architecture
+
+- **Hybrid RAG Database** - Vector (ChromaDB) + Graph (Neo4j) + Relational (PostgreSQL)
+- **Pluggable LLM Layer** - Supports OpenAI, Anthropic, Google, and Ollama
+- **4 AI Agents** - Risk Analyzer, Scope Checker, Launch Prefill, Gap Analyzer
+- **GitHub Integration** - PR compliance checking via webhook + GitHub Action
+- **Streamlit Dashboard** - Project management, risk tracking, launch checklists
+
+## Quick Start
+
+### Prerequisites
+
+- Docker and Docker Compose
+- An LLM API key (OpenAI, Anthropic, Google) _or_ Ollama running locally
+
+### Setup
+
+```bash
+# Clone and enter the project
+cd Helix
+
+# Copy environment config
+cp .env.example .env
+# Edit .env with your API keys
+
+# Start all services
+docker compose up -d
+
+# Run database migrations
+docker compose exec helix-api alembic upgrade head
+
+# (Optional) Seed sample data
+docker compose exec helix-api python -m helix.seed
+```
+
+### Access
+
+| Service        | URL                          |
+|----------------|------------------------------|
+| API (FastAPI)  | http://localhost:8000        |
+| API Docs       | http://localhost:8000/docs   |
+| Dashboard (UI) | http://localhost:8501        |
+| Neo4j Browser  | http://localhost:7474        |
+
+## Project Structure
+
+```
+src/helix/
+├── main.py           # FastAPI entrypoint
+├── config.py         # Settings
+├── llm/              # Pluggable LLM abstraction
+├── rag/              # Hybrid RAG (vector + graph)
+├── agents/           # AI agents (risk, scope, launch, gap)
+├── integrations/     # GitHub, metrics clients
+├── api/routes/       # API endpoints
+├── models/           # DB models + Pydantic schemas
+├── tasks/            # Background workers
+└── db/               # Database session management
+```
+
+## Lifecycle Stages
+
+1. **Discovery** - Upload PRD, get AI risk analysis and dependency graph
+2. **Execution** - PR scope-creep detection against approved design docs
+3. **Launch** - Auto-prefilled launch checklists from project artifacts
+4. **Stewardship** - Post-launch metric monitoring and gap analysis
+
+## Development
+
+```bash
+# Install in dev mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Lint
+ruff check src/ tests/
+```
+
+## License
+
+MIT
