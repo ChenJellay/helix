@@ -38,15 +38,25 @@ async def list_workspace_repos(
     repos: list[dict[str, str]] = []
 
     try:
-        for child in sorted(workspace.iterdir()):
-            if child.is_dir() and (child / ".git").exists():
-                rel = child.relative_to(workspace).as_posix()
-                repos.append({"name": child.name, "path": rel})
+        children = sorted(workspace.iterdir())
     except PermissionError as exc:
         raise HTTPException(
             status_code=500,
             detail=f"Cannot read workspace directory: {exc}",
         ) from exc
+
+    for child in children:
+        try:
+            if not child.is_dir():
+                continue
+            if not (child / ".git").exists():
+                continue
+            rel = child.relative_to(workspace).as_posix()
+            repos.append({"name": child.name, "path": rel})
+        except (PermissionError, OSError):
+            # Skip directories we can't read (e.g. .Trash on macOS in Docker)
+            logger.debug("Skipping inaccessible path: %s", child)
+            continue
 
     return {"workspace": str(workspace), "repos": repos}
 
